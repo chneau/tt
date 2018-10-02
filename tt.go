@@ -20,14 +20,8 @@ func Track(start time.Time, name string) {
 // It will get the name of the function via runtime
 // It will print the time used by the function
 func T() func() {
-	name := "N/A"
-	{
-		pc, _, _, ok := runtime.Caller(1)
-		details := runtime.FuncForPC(pc)
-		if ok && details != nil {
-			name = details.Name()
-		}
-	}
+	pc, _, _, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name() // nil is ok, see impl of Name()
 	start := time.Now()
 	return func() {
 		Track(start, name)
