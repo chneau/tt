@@ -16,20 +16,18 @@ func Track(start time.Time, name string) {
 	log.Printf("<[%s]> %s", name, time.Since(start))
 }
 
-func myCaller() string {
-	pc, _, _, ok := runtime.Caller(2)
-	details := runtime.FuncForPC(pc)
-	if ok && details != nil {
-		return details.Name()
-	}
-	return "N/A"
-}
-
 // T allows you to track time of a function
 // It will get the name of the function via runtime
 // It will print the time used by the function
 func T() func() {
-	name := myCaller()
+	name := "N/A"
+	{
+		pc, _, _, ok := runtime.Caller(1)
+		details := runtime.FuncForPC(pc)
+		if ok && details != nil {
+			name = details.Name()
+		}
+	}
 	start := time.Now()
 	return func() {
 		Track(start, name)
