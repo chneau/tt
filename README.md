@@ -1,37 +1,88 @@
 # tt
-A simple time tracker for go in arround 40 lines of code.  
-Allows you to quickly check how much time a function takes to run.
 
-## Doc
-https://godoc.org/github.com/chneau/tt
+A simple, thread-safe execution time tracker in Go in ~50 lines of code.
 
-## Install
+[![Go Reference](https://pkg.go.dev/badge/github.com/chneau/tt.svg)](https://pkg.go.dev/github.com/chneau/tt)
+[![Go Report Card](https://goreportcard.com/badge/github.com/chneau/tt)](https://goreportcard.com/report/github.com/chneau/tt)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+---
+
+## ⚡ Features
+
+- **Zero Friction**: One line instrumentation via `defer tt.T()()`.
+- **Automatic Function Name Detection**: Leverages `runtime.Caller` to infer caller name automatically.
+- **Thread-Safe**: Fully safe for concurrent calls and log configuration updates.
+- **Configurable Output**: Direct logs to any `io.Writer` via `tt.SetOutput(w)` or adjust log flags with `tt.SetFlags(flag)`.
+
+---
+
+## 🚀 Installation
+
 ```bash
 go get github.com/chneau/tt
 ```
 
-## Usage
+---
 
-Simply add `defer tt.T()()` to a function to know how much times the function takes to finish (from the line you have written `defer tt.T()()`).
+## 💡 Usage
 
-## Example
-###### Code
+Simply add `defer tt.T()()` at the top of your function:
+
 ```go
-// GetDataStatic Return static data
-func GetDataStatic() []Load {
-	defer tt.Track(time.Now(), "GetDataStaticLoads") // This
-	defer tt.T()()                                   // This one is a shorthand
-	f, _ := fs.New()
-	file, _ := f.Open("/loads.gob")
-	dec := gob.NewDecoder(file)
-	v := []Load{}
-	dec.Decode(&v)
-	return v
+package main
+
+import (
+	"time"
+
+	"github.com/chneau/tt"
+)
+
+func process() {
+	defer tt.T()() // Automatically prints function name and duration upon return
+
+	time.Sleep(50 * time.Millisecond)
+}
+
+func customNamed() {
+	defer tt.Track(time.Now(), "myCustomOperation")
+
+	time.Sleep(25 * time.Millisecond)
+}
+
+func main() {
+	process()
+	customNamed()
 }
 ```
-###### Output
-```
-[TRACK] 2018/08/03 12:12:03 <[main.GetDataStatic]> 75.563159ms
-[TRACK] 2018/08/03 12:12:03 <[GetDataStaticLoads]> 75.563159ms
+
+### Example Output
+
+```text
+[TRACK] 2026/09/04 13:36:00 <[main.process]> 50.123456ms
+[TRACK] 2026/09/04 13:36:00 <[myCustomOperation]> 25.045612ms
 ```
 
+---
+
+## 🛠️ Development Commands
+
+```bash
+# Run tests with race detector and coverage
+go test -v -race -cover ./...
+
+# Run benchmarks
+go test -benchmem -bench=. ./...
+
+# Modernize codebase
+modernize ./...
+
+# Run linter
+golangci-lint run ./...
+```
+
+---
+
+## 📄 License
+
+[MIT](LICENSE)
